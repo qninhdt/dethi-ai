@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+python-multipart
+firebase-admin
+google-cloud-storage
+google-cloud-firestore
+redis
+rq
+langchain
+langchain-openai
+requests
+pydantic
+numpy
+python-dotenv
+json-repair

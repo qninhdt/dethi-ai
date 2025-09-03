@@ -1,0 +1,16 @@
+Generate a Vietnamese True/False math question, analogous to the example, with a stem and N statements.
+
+Requirements:
+- Replicate structure and concept, change numbers and context.
+- Provide proof for each statement's truth value.
+- Explain misconceptions for wrong judgments.
+- All numbers in equation mode.
+- All equations and mathematical expressions must be formatted in valid LaTeX.
+
+Output JSON schema:
+{format_instructions}
+
+Example Question in LaTeX:
+```latex
+{question}
+```

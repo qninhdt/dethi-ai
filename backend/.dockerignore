@@ -1,0 +1,15 @@
+__pycache__
+*.pyc
+.venv
+dist
+build
+*.log
+*.pdf
+*.aux
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+node_modules
+.pytest_cache
+.mypy_cache
