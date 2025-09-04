@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # System deps: poppler-utils for pdftoppm, libreoffice for doc->pdf, texlive for pdflatex
 RUN apt-get update && apt-get install -y --no-install-recommends \
     poppler-utils libreoffice-common libreoffice-writer \
-    texlive-latex-base texlive-latex-recommended texlive-latex-extra \
+    texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-lang-other \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 

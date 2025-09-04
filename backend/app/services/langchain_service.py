@@ -3,6 +3,7 @@ import logging
 import os
 from typing import Any, Dict, List
 
+from langchain_core.runnables import RunnableLambda
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
@@ -14,7 +15,24 @@ from app.schemas.exam import (
     TrueFalseQuestionWithAnswer,
 )
 
+import json_repair
+
 logger = logging.getLogger(__name__)
+
+
+def wrapper_json_repair(input):
+    content = input.content.strip()
+
+    if content.startswith("```json"):
+        content = content[7:]
+    if content.endswith("```"):
+        content = content[:-3]
+
+    input.content = json.dumps(json_repair.loads(content))
+    return input
+
+
+json_repair_lambda = RunnableLambda(wrapper_json_repair)
 
 
 def _build_llm(model_name: str, temperature: float = 0.2) -> ChatOpenAI:
@@ -40,8 +58,9 @@ def extract_exam_from_latex(latex_pages: List[str]) -> Dict[str, Any]:
         input_variables=["exam_content"],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
-    chain = prompt | llm | parser
+    chain = prompt | llm | json_repair_lambda | parser
     combined = "\n\\newpage\n".join(latex_pages)
+
     result = chain.invoke({"exam_content": combined})
     # The parser already returns a dictionary, so we can return it directly
     return result
@@ -58,7 +77,7 @@ def generate_mcq_from_example(example_json: Dict[str, Any]) -> Dict[str, Any]:
         input_variables=["question"],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
-    chain = prompt | llm | parser
+    chain = prompt | llm | json_repair_lambda | parser
     out = chain.invoke({"question": json.dumps(example_json, ensure_ascii=False)})
     # The parser already returns a dictionary, so we can return it directly
     return out
@@ -75,7 +94,7 @@ def generate_true_false_from_example(example_json: Dict[str, Any]) -> Dict[str, 
         input_variables=["question"],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
-    chain = prompt | llm | parser
+    chain = prompt | llm | json_repair_lambda | parser
     out = chain.invoke({"question": json.dumps(example_json, ensure_ascii=False)})
     # The parser already returns a dictionary, so we can return it directly
     return out
@@ -92,7 +111,7 @@ def generate_short_answer_from_example(example_json: Dict[str, Any]) -> Dict[str
         input_variables=["question"],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
-    chain = prompt | llm | parser
+    chain = prompt | llm | json_repair_lambda | parser
     out = chain.invoke({"question": json.dumps(example_json, ensure_ascii=False)})
     # The parser already returns a dictionary, so we can return it directly
     return out

@@ -5,6 +5,8 @@ Core Requirements:
 - Detailed Solution: Provide a complete solution in LaTeX.
 - Distractor Analysis: Explain why each incorrect option is plausible but wrong.
 - All equations and mathematical expressions must be formatted in valid LaTeX.
+- Explanations and error analysis must not share the same prefixes or suffixes like "Explanation:", "Reason why", or "Proof:".
+- Use a blank line to start a new paragraph instead of "\n" or "\\".
 
 Constraints:
 - Exact and manageable answer.

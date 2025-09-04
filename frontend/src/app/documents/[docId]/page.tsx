@@ -595,12 +595,13 @@ export default function DocumentDetailPage() {
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2 mb-2">
+                              <span className="text-sm text-muted-foreground">
+                                Question {parseInt(question.id) + 1}
+                              </span>
+
                               <Badge variant="outline" className="text-xs">
                                 {question.type.replace("_", " ")}
                               </Badge>
-                              <span className="text-sm text-muted-foreground">
-                                Question {question.index + 1}
-                              </span>
                             </div>
 
                             <div className="mb-3">

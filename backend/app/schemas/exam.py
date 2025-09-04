@@ -103,12 +103,12 @@ class MultipleChoiceAnswer(BaseModel):
 
     explanation: str = Field(
         ...,
-        description="A detailed explanation in LaTeX format justifying why the selected options are correct and why the others are incorrect.",
+        description="A detailed explanation in LaTeX format justifying why the selected options are correct.",
     )
 
-    error_analysis: List[str] = Field(
+    error_analysis: List[Optional[str]] = Field(
         ...,
-        description="A list of explanations in LaTeX format for each incorrect option, describing the common mistake that could lead a student to choose that option. Correct options should have an empty string.",
+        description="A list of explanations in LaTeX format for each incorrect option, describing the common mistake that could lead a student to choose that option. Correct option must have None.",
     )
 
 

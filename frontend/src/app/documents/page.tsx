@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   FileText,
   Upload,
@@ -30,12 +31,12 @@ interface Document {
   id: string;
   filename: string;
   content_type: string;
-  size: number;
-  storage_path: string;
-  created_at?: number;
-  created_by: string;
+  file_size: number;
+  created_at: number;
   ocr_status: "pending" | "processing" | "done" | "error";
   extract_status: "pending" | "processing" | "done" | "error";
+  ocr_total?: number;
+  ocr_completed?: number;
 }
 
 export default function DocumentsPage() {
@@ -198,7 +199,7 @@ export default function DocumentsPage() {
                         {doc.filename}
                       </CardTitle>
                       <CardDescription className="mt-1">
-                        {formatFileSize(doc.size)} • Uploaded{" "}
+                        {formatFileSize(doc.file_size)} • Uploaded{" "}
                         {doc.created_at
                           ? formatDistanceToNow(
                               new Date(doc.created_at * 1000),
@@ -215,7 +216,7 @@ export default function DocumentsPage() {
               </CardHeader>
 
               <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
+                <div className="space-y-3">
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <span>OCR:</span>
@@ -229,6 +230,13 @@ export default function DocumentsPage() {
                         }`}
                       >
                         {doc.ocr_status}
+                        {doc.ocr_status === "processing" &&
+                          doc.ocr_total &&
+                          doc.ocr_completed !== undefined && (
+                            <span className="ml-1 text-xs">
+                              ({doc.ocr_completed}/{doc.ocr_total})
+                            </span>
+                          )}
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
@@ -246,6 +254,23 @@ export default function DocumentsPage() {
                       </span>
                     </div>
                   </div>
+
+                  {doc.ocr_status === "processing" &&
+                    doc.ocr_total &&
+                    doc.ocr_completed !== undefined && (
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>OCR Progress</span>
+                          <span>
+                            {doc.ocr_completed}/{doc.ocr_total} pages
+                          </span>
+                        </div>
+                        <Progress
+                          value={(doc.ocr_completed / doc.ocr_total) * 100}
+                          className="h-1"
+                        />
+                      </div>
+                    )}
 
                   <div className="flex items-center space-x-2">
                     {doc.ocr_status === "done" &&

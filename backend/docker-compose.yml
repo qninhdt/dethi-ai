@@ -21,7 +21,7 @@ services:
   worker:
     build: .
     container_name: dethi-worker
-    command: ["rq", "worker", "-u", "redis://redis:6379", "ocr", "generate"]
+    command: ["rq", "worker", "-u", "redis://redis:6379", "ocr", "extract", "generate"]
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-credentials.json
       - FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET}

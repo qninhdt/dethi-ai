@@ -19,24 +19,27 @@ DethiAI (Đề thi AI) ingests exams (PDF/DOCX), performs OCR to recover LaTeX, 
 1. Upload
    - POST /documents with a file (multipart)
    - Store in Firebase Storage and create Firestore document with status fields
-   - Enqueue an OCR job (Redis RQ)
-2. OCR + Extract
-   - Worker downloads file from Storage
-   - Convert to PDF (LibreOffice if needed) and to images (pdftoppm)
-   - Call vision LLM (OpenRouter) for LaTeX per page
-   - Use LangChain to convert LaTeX → JSON exam schema
+   - Enqueue an OCR initialization job (Redis RQ)
+2. OCR (Parallel Processing)
+   - OCR initialization job downloads file, counts pages, and generates images in local temp directory
+   - Each page OCR job processes one local image file
+   - Progress tracked in `ocr_total` and `ocr_completed` fields
+   - When all pages complete, extraction job is automatically enqueued
+3. Extract
+   - Extraction worker concatenates all page LaTeX results
+   - Use LangChain to convert combined LaTeX → JSON exam schema
    - Save original questions into `documents/{doc}/questions` (no answers)
-3. Selection + Generate
+4. Selection + Generate
    - Frontend fetches original questions and lets user select indices
    - POST /documents/{doc}/generate with selected_indices and target_count
    - API creates a generated exam doc with total, completed=0, and per-question placeholders status=pending (q1..qN)
    - Enqueue one job per selected question (parallel)
-4. Per-question job
+5. Per-question job
    - Worker sets status=processing for q{index}
    - Calls LLM chain based on question type to generate analogous question + answer/explanation
    - Saves result into q{index} with status=done and increments completed
    - On error sets status=error with error message
-5. Export
+6. Export
    - On GET /documents/{doc}/exams/{gen}/export?format=latex|pdf build LaTeX and if pdf, compile with pdflatex on demand
 
 ## 4) APIs (FastAPI)
@@ -128,12 +131,23 @@ Generated variants include `answer`:
 
 ## 8) Queueing and Concurrency (Redis RQ)
 Queues
-- `ocr`: single job per upload — OCR + extraction
+- `ocr`: parallel jobs per page — OCR individual pages
+- `extract`: single job per upload — extraction after all OCR pages complete  
 - `generate`: one job per selected question
 
 Progress
+- OCR-level: `documents/{docId}.ocr_total` and `ocr_completed`, auto-mark `ocr_status=done` when all pages complete
 - Exam-level: `generated_exams/{gen}.total` and `completed`, auto-mark `status=done` when `completed >= total`.
 - Per-question: `status` among pending/processing/done/error in `generated_exams/{gen}/questions/q{index}`.
+
+Workflow
+1. Upload triggers OCR initialization job
+2. OCR job downloads file, converts to images, stores in local temp directory (/tmp/ocr_{doc_id})
+3. Enqueues parallel OCR jobs with local image file paths
+4. Each page OCR job processes its image and stores result in Firestore
+5. When all pages complete, extraction job is automatically enqueued
+6. Extraction job concatenates all page results and extracts exam structure
+7. Local temp directory is cleaned up after completion
 
 ## 9) LLM and Prompts (LangChain)
 - Vision OCR: REST call to OpenRouter vision model to get LaTeX per page (see `ocr_service.py`).

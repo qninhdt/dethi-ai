@@ -559,20 +559,31 @@ export default function GeneratedExamPage() {
                         {question.answer.error_analysis && (
                           <div>
                             <p className="text-sm font-medium mb-1">
-                              Common Errors:
+                              Why other options are incorrect:
                             </p>
-                            <ul className="space-y-1">
+                            <div className="space-y-1">
                               {question.answer.error_analysis.map(
-                                (error, idx) => (
-                                  <li
-                                    key={idx}
-                                    className="text-sm text-muted-foreground"
-                                  >
-                                    • <LaTeX>{error}</LaTeX>
-                                  </li>
-                                )
+                                (error, idx) => {
+                                  // Skip the correct option
+                                  if (
+                                    idx === question.answer?.selected_options
+                                  ) {
+                                    return null;
+                                  }
+                                  return (
+                                    <div
+                                      key={idx}
+                                      className="text-sm text-muted-foreground"
+                                    >
+                                      <span className="font-medium">
+                                        {String.fromCharCode(65 + idx)}.
+                                      </span>{" "}
+                                      <LaTeX>{error}</LaTeX>
+                                    </div>
+                                  );
+                                }
                               )}
-                            </ul>
+                            </div>
                           </div>
                         )}
                       </div>

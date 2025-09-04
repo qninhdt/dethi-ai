@@ -6,6 +6,8 @@ Requirements:
 - Explain misconceptions for wrong judgments.
 - All numbers in equation mode.
 - All equations and mathematical expressions must be formatted in valid LaTeX.
+- Explanations and error analysis must not share the same prefixes or suffixes like "Explanation:", "Reason why", or "Proof:".
+- Use a blank line to start a new paragraph instead of "\n" or "\\".
 
 Output JSON schema:
 {format_instructions}
