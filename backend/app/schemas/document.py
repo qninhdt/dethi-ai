@@ -33,4 +33,4 @@ class GenerateRequest(BaseModel):
 
 
 class ExportFormat(BaseModel):
-    format: str  # latex or pdf
+    format: str  # markdown, pdf, or docx

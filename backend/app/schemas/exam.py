@@ -12,7 +12,9 @@ class MultipleChoiceData(BaseModel):
 
     options: List[str] = Field(
         ...,
-        description="A list of LaTeX strings, each representing an option, without the leading label (e.g., 'A)', 'a.', etc).",
+        min_length=4,
+        max_length=4,
+        description="A list of Markdown strings, each representing an option, without the leading label (e.g., 'A)', 'a.', etc).",
     )
 
 
@@ -21,7 +23,9 @@ class TrueFalseData(BaseModel):
 
     clauses: List[str] = Field(
         ...,
-        description="A list of LaTeX strings for each clause, without the leading label (e.g., 'a)', 'b)', '1.', '2', etc).",
+        min_length=4,
+        max_length=4,
+        description="A list of Markdown strings for each clause, without the leading label (e.g., 'a)', 'b)', '1.', '2', etc).",
     )
 
 
@@ -36,7 +40,7 @@ class TextElement(BaseModel):
     """Represents an instruction, or a heading in the exam."""
 
     type: Literal["text"] = "text"
-    content: str = Field(..., description="The raw LaTeX content of the text block.")
+    content: str = Field(..., description="The raw Markdown content of the text block.")
 
 
 class BaseQuestionElement(BaseModel):
@@ -44,7 +48,7 @@ class BaseQuestionElement(BaseModel):
 
     content: str = Field(
         ...,
-        description="The main body or stem of the question in LaTeX format, without the question index (e.g., '1.', '2.', etc).",
+        description="The main body or stem of the question in Markdown format, without the question index (e.g., '1.', '2.', etc).",
     )
 
 
@@ -103,12 +107,14 @@ class MultipleChoiceAnswer(BaseModel):
 
     explanation: str = Field(
         ...,
-        description="A detailed explanation in LaTeX format justifying why the selected options are correct.",
+        description="A detailed explanation in Markdown format justifying why the selected options are correct.",
     )
 
-    error_analysis: List[Optional[str]] = Field(
+    error_analysis: List[str] = Field(
         ...,
-        description="A list of explanations in LaTeX format for each incorrect option, describing the common mistake that could lead a student to choose that option. Correct option must have None.",
+        min_length=4,
+        max_length=4,
+        description="A list of explanations in Markdown format for each incorrect option, describing the common mistake that could lead a student to choose that option.",
     )
 
 
@@ -117,17 +123,21 @@ class TrueFalseAnswer(BaseModel):
 
     clause_correctness: List[bool] = Field(
         ...,
+        min_length=4,
+        max_length=4,
         description="A list of booleans indicating the correctness of each clause.",
     )
 
     general_explanation: Optional[str] = Field(
         None,
-        description="An optional general step-by-step solution in LaTeX format covering all necessary steps to determine the correctness of the clauses.",
+        description="An optional general step-by-step solution in Markdown format covering all necessary steps to determine the correctness of the clauses.",
     )
 
     explanations: List[str] = Field(
         ...,
-        description="A list of explanations in LaTeX format for each clause, describing why it is true or false.",
+        min_length=4,
+        max_length=4,
+        description="A list of explanations in Markdown format for each clause, describing why it is true or false.",
     )
 
 
@@ -136,12 +146,12 @@ class ShortAnswerAnswer(BaseModel):
 
     answer_text: str = Field(
         ...,
-        description="A number, word, or phrase representing the answer in LaTeX format.",
+        description="A number, word, or phrase representing the answer in Markdown format.",
     )
 
     explanation: str = Field(
         ...,
-        description="A detailed step-by-step solution in LaTeX format explaining how to arrive at the answer.",
+        description="A detailed step-by-step solution in Markdown format explaining how to arrive at the answer.",
     )
 
 

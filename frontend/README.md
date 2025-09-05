@@ -10,7 +10,7 @@ A modern Next.js application for AI-powered exam generation from uploaded docume
 - ❓ **Question Management** - View and select extracted questions
 - 🎯 **Exam Generation** - Create new exams based on selected questions
 - 📊 **Real-time Progress** - Live status updates for generation process
-- 🎨 **LaTeX Rendering** - Full LaTeX support for mathematical content
+- 🎨 **Markdown Rendering** - Full Markdown support for mathematical content
 - 🌙 **Dark Mode** - System-aware theme switching
 - 📱 **Responsive Design** - Works on all devices
 - 🚀 **Modern UI** - Built with ShadCN components
@@ -20,7 +20,7 @@ A modern Next.js application for AI-powered exam generation from uploaded docume
 - **Framework**: Next.js 15 with App Router
 - **Styling**: Tailwind CSS + ShadCN UI components
 - **Authentication**: Firebase Auth
-- **LaTeX**: LaTeX.js for mathematical rendering
+- **Markdown**: Markdown.js for mathematical rendering
 - **Forms**: React Hook Form with Zod validation
 - **Icons**: Lucide React
 - **Date Handling**: date-fns
@@ -86,7 +86,7 @@ components/            # Reusable components
 ├── auth-provider.tsx # Authentication context
 ├── theme-provider.tsx# Theme management
 ├── header.tsx       # Navigation header
-├── latex.tsx        # LaTeX rendering component
+├── markdown.tsx        # Markdown rendering component
 ├── loading.tsx      # Loading states
 └── sign-in.tsx     # Sign-in component
 
@@ -110,7 +110,7 @@ lib/                  # Utilities and configuration
 - OCR and extraction progress visualization
 
 ### Question System
-- LaTeX-rendered mathematical content
+- Markdown-rendered mathematical content
 - Multiple question types (multiple choice, true/false, short answer)
 - Question selection for exam generation
 - Bulk select/deselect functionality
@@ -119,9 +119,9 @@ lib/                  # Utilities and configuration
 - Real-time generation progress
 - Per-question status tracking
 - Show/hide answers toggle
-- Export to LaTeX and PDF formats
+- Export to Markdown, PDF, and DOCX formats
 
-### LaTeX Support
+### Markdown Support
 - Full mathematical formula rendering
 - Inline and display math modes
 - Custom styling for dark mode
@@ -152,24 +152,23 @@ The application uses CSS custom properties for theming:
 ## Development
 
 ### Adding New Components
-
 1. Create component in appropriate directory
 2. Use semantic color classes (e.g., `text-primary`, `bg-secondary`)
 3. Include TypeScript interfaces
 4. Add proper error handling
 
-### LaTeX Integration
+### Markdown Integration
 
-For LaTeX content, use the `<LaTeX>` component:
+For Markdown content, use the `<Markdown>` component:
 
 ```tsx
-import { LaTeX } from '@/components/latex';
+import { Markdown } from '@/components/markdown';
 
 // Inline math
-<LaTeX>$x^2 + y^2 = z^2$</LaTeX>
+<Markdown>$x^2 + y^2 = z^2$</Markdown>
 
 // Display math
-<LaTeX displayMode>$$\int_0^\infty e^{-x} dx = 1$$</LaTeX>
+<Markdown displayMode>$$\int_0^\infty e^{-x} dx = 1$$</Markdown>
 ```
 
 ### State Management
@@ -207,7 +206,7 @@ Required for production:
 1. Follow the existing code style
 2. Use TypeScript strictly
 3. Add proper error handling
-4. Test LaTeX rendering thoroughly
+4. Test Markdown rendering thoroughly
 5. Ensure responsive design
 6. Follow accessibility best practices
 

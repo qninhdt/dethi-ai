@@ -251,7 +251,7 @@ def delete_generated_exam(doc_id: str, gen_id: str) -> None:
     exam_ref.delete()
 
 
-def update_ocr_page_result(doc_id: str, page_index: int, latex_content: str) -> None:
+def update_ocr_page_result(doc_id: str, page_index: int, markdown_content: str) -> None:
     """Update OCR result for a specific page and check if all pages are complete"""
     db = get_firestore()
     doc_ref = db.collection(DOCS).document(doc_id)
@@ -265,7 +265,7 @@ def update_ocr_page_result(doc_id: str, page_index: int, latex_content: str) -> 
 
         # Get current ocr_pages or initialize empty dict
         ocr_pages = doc_data.get("ocr_pages", {})
-        ocr_pages[str(page_index)] = latex_content  # Use string key for consistency
+        ocr_pages[str(page_index)] = markdown_content  # Use string key for consistency
 
         # Update the document with new ocr_pages and increment counter
         doc_ref.set(

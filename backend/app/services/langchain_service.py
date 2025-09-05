@@ -47,19 +47,19 @@ def _build_llm(model_name: str, temperature: float = 0.2) -> ChatOpenAI:
     )
 
 
-def extract_exam_from_latex(latex_pages: List[str]) -> Dict[str, Any]:
+def extract_exam_from_markdown(markdown_pages: List[str]) -> Dict[str, Any]:
     model = os.getenv("OCR_MODEL_NAME")
     llm = _build_llm(model, temperature=0)
     parser = JsonOutputParser(pydantic_object=Exam)
     prompt = PromptTemplate(
         template=(
-            open("./app/prompts/latex_to_json.txt", "r", encoding="utf-8").read()
+            open("./app/prompts/markdown_to_json.txt", "r", encoding="utf-8").read()
         ),
         input_variables=["exam_content"],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
     chain = prompt | llm | json_repair_lambda | parser
-    combined = "\n\\newpage\n".join(latex_pages)
+    combined = "\n\\newpage\n".join(markdown_pages)
 
     result = chain.invoke({"exam_content": combined})
     # The parser already returns a dictionary, so we can return it directly

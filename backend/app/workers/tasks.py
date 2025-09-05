@@ -15,12 +15,12 @@ from app.services.firestore_service import (
     update_document,
 )
 from app.services.langchain_service import (
-    extract_exam_from_latex,
+    extract_exam_from_markdown,
     generate_mcq_from_example,
     generate_short_answer_from_example,
     generate_true_false_from_example,
 )
-from app.services.ocr_service import ocr_document_to_latex
+from app.services.ocr_service import ocr_document_to_markdown
 from app.services.storage_service import download_file
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ def ocr_single_page(doc_id: str, image_local_path: str, page_index: int) -> None
     """OCR a single page from local image file"""
     _ensure_init()
     try:
-        from app.services.ocr_service import image_to_latex
+        from app.services.ocr_service import image_to_markdown
 
         logger.info(
             "Starting OCR for doc %s, page %d, image: %s",
@@ -118,14 +118,14 @@ def ocr_single_page(doc_id: str, image_local_path: str, page_index: int) -> None
             raise Exception(f"Image file not found: {image_local_path}")
 
         # OCR the specific page
-        latex = image_to_latex(
+        markdown = image_to_markdown(
             image_local_path,
             os.getenv("OPENROUTER_API_KEY", ""),
             os.getenv("OCR_MODEL_NAME"),
         )
 
-        if not latex:
-            latex = "% ERROR: OCR failed on page"
+        if not markdown:
+            markdown = "% ERROR: OCR failed on page"
 
         logger.info(
             "OCR completed for doc %s, page %d, storing result", doc_id, page_index
@@ -134,7 +134,7 @@ def ocr_single_page(doc_id: str, image_local_path: str, page_index: int) -> None
         # Store the result and update progress
         from app.services.firestore_service import update_ocr_page_result
 
-        update_ocr_page_result(doc_id, page_index, latex)
+        update_ocr_page_result(doc_id, page_index, markdown)
 
         logger.info("OCR result stored for doc %s, page %d", doc_id, page_index)
 
@@ -161,7 +161,7 @@ def extract_after_ocr(doc_id: str) -> None:
             raise Exception("No OCR results found")
 
         # Extract exam structure
-        exam = extract_exam_from_latex(pages)
+        exam = extract_exam_from_markdown(pages)
         save_original_exam(doc_id, exam)
         update_document(doc_id, {"extract_status": "done"})
 

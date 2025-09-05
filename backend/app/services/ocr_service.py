@@ -66,16 +66,17 @@ def pdf_to_images(pdf_path: str, output_prefix: str) -> List[str]:
         return []
 
 
-def image_to_latex(image_path: str, api_key: str, model_name: str) -> Optional[str]:
+def image_to_markdown(image_path: str, api_key: str, model_name: str) -> Optional[str]:
     if not api_key:
         logger.error("OPENROUTER_API_KEY not set")
         return None
-    logger.info("Converting image to LaTeX: %s", os.path.basename(image_path))
+    logger.info("Converting image to Markdown: %s", os.path.basename(image_path))
     with open(image_path, "rb") as f:
         base64_image = base64.b64encode(f.read()).decode("utf-8")
     prompt = (
-        "Convert a math exam to latex code. If there is a figure, image, graph, chart or table, just ignore it, do not try to recreate it in LaTeX."
-        "Output ONLY raw LaTeX for this page, no preamble or document wrappers."
+        "Convert a math exam to markdown code. If there is a figure, image, graph, chart or table, just ignore it, do not try to recreate it in Markdown."
+        "Math equations must be formatted in valid Markdown, with inline equations enclosed in single dollar signs `$...$` and displayed equations enclosed in double dollar signs `$$...$$`."
+        "Output ONLY raw Markdown for this page, no preamble or document wrappers."
     )
     try:
         response = requests.post(
@@ -111,7 +112,7 @@ def image_to_latex(image_path: str, api_key: str, model_name: str) -> Optional[s
         return None
 
 
-def ocr_document_to_latex(
+def ocr_document_to_markdown(
     local_doc_path: str, api_key: str, ocr_model: str
 ) -> List[str]:
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -125,9 +126,9 @@ def ocr_document_to_latex(
         images = pdf_to_images(pdf_path, prefix)
         pages: List[str] = []
         for img in images:
-            latex = image_to_latex(img, api_key, ocr_model)
-            if latex:
-                pages.append(latex)
+            markdown = image_to_markdown(img, api_key, ocr_model)
+            if markdown:
+                pages.append(markdown)
             else:
                 pages.append("% ERROR: OCR failed on page")
         return pages

@@ -3,10 +3,9 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# System deps: poppler-utils for pdftoppm, libreoffice for doc->pdf, texlive for pdflatex
+# TODO: need to install pandoc and xelatex
 RUN apt-get update && apt-get install -y --no-install-recommends \
     poppler-utils libreoffice-common libreoffice-writer \
-    texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-lang-other \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 

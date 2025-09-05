@@ -20,6 +20,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { Markdown } from "@/components/markdown";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -44,6 +45,15 @@ export default function Home() {
                 Exam Generator
               </span>
             </h1>
+            <Markdown>
+              {`
+                # Markdown
+                This is an example of a markdown with math. 
+                
+                $$ \\int_0^1 x^2 dx = \\frac{1}{3} $$
+                
+                $x^2$`}
+            </Markdown>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Upload your documents and let AI generate intelligent, customized
               exams. Create multiple choice, true/false, and short answer
@@ -117,8 +127,8 @@ export default function Home() {
                 </dt>
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
                   <p className="flex-auto">
-                    Export your generated exams to LaTeX or PDF format for easy
-                    distribution and professional presentation.
+                    Export your generated exams to Markdown, PDF, or DOCX format
+                    for easy distribution and professional presentation.
                   </p>
                 </dd>
               </div>
@@ -186,8 +196,8 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Create new questions based on your selections. Export to LaTeX
-                  or PDF when ready for distribution.
+                  Create new questions based on your selections. Export to
+                  Markdown, PDF, or DOCX when ready for distribution.
                 </CardDescription>
               </CardContent>
             </Card>

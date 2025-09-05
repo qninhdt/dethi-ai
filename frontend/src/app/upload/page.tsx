@@ -254,7 +254,7 @@ export default function UploadPage() {
                 <CardTitle className="text-sm">Supported Content</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>• Mathematical formulas (LaTeX format)</p>
+                <p>• Mathematical formulas</p>
                 <p>• Technical diagrams and figures</p>
                 <p>• Multiple languages</p>
                 <p>• Academic and educational content</p>

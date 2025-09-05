@@ -2,10 +2,11 @@ Generate a Vietnamese short-answer math question, analogous to the example.
 
 Core Requirements:
 - Keep the structure and concepts of the input question, change all specific numbers, answers, scenarios and contexts.
-- Provide a complete solution in LaTeX.
-- All equations and mathematical expressions must be formatted in valid LaTeX.
+- Provide a complete solution in Markdown.
+- All equations and mathematical expressions must be formatted in valid Markdown.
 - Explanations and error analysis must not share the same prefixes or suffixes like "Explanation:", "Reason why", or "Proof:".
-- Use a blank line to start a new paragraph instead of "\n" or "\\".
+- Inline equations must be enclosed in single dollar signs `$...$`.
+- Displayed equations must be enclosed in double dollar signs `$$...$$`.
 - The output question must have the same difficulty and complexity as the original question.
 - Students must be able to solved the question by hand with draft papers without calculator.
 

@@ -1,0 +1,15 @@
+Task: Your task is to convert the provided mathematic exam content in Markdown format into a structured JSON format according to the schema.
+
+Requirements:
+- Single number must also be placed inside equation mode, e.g., $1$, $3.14$, $75\%$, etc.
+- Remove all unnecessary texts like website links, text inputs, footers, page indexes, separators, etc.
+- Only tables are allowed, other figures like images, graphs, charts, etc. must be removed.
+- Ensure all mathematical expressions are correctly formatted with $...$ for inline and $$...$$ for display math.
+
+Output JSON schema:
+{format_instructions}
+
+Input Exam:
+```md
+{exam_content}
+```

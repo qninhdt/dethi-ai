@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { SignIn } from "@/components/sign-in";
 import { LoadingPage, Loading } from "@/components/loading";
-import { LaTeX } from "@/components/latex";
+import { Markdown } from "@/components/markdown";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -384,7 +384,7 @@ export default function DocumentDetailPage() {
               <div>
                 <h4 className="font-medium text-sm mb-2">Original Content</h4>
                 <div className="text-sm text-muted-foreground">
-                  <LaTeX>{document.original_exam.metadata.title}</LaTeX>
+                  <Markdown>{document.original_exam.metadata.title}</Markdown>
                   {document.original_exam.metadata.duration_minutes && (
                     <p className="mt-1">
                       Duration:{" "}
@@ -449,7 +449,7 @@ export default function DocumentDetailPage() {
                     <FileText className="h-5 w-5 text-primary mt-0.5" />
                     <div>
                       <h4 className="font-medium">
-                        <LaTeX>{exam.metadata.title}</LaTeX>
+                        <Markdown>{exam.metadata.title}</Markdown>
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         Created{" "}
@@ -576,7 +576,7 @@ export default function DocumentDetailPage() {
                   <div key={question.id || index}>
                     {question.type === "text" ? (
                       <div className="py-2">
-                        <LaTeX>{question.content}</LaTeX>
+                        <Markdown>{question.content}</Markdown>
                       </div>
                     ) : (
                       <div
@@ -605,7 +605,7 @@ export default function DocumentDetailPage() {
                             </div>
 
                             <div className="mb-3">
-                              <LaTeX>{question.content}</LaTeX>
+                              <Markdown>{question.content}</Markdown>
                             </div>
 
                             {question.data?.options && (
@@ -618,7 +618,7 @@ export default function DocumentDetailPage() {
                                     <span className="text-muted-foreground">
                                       {String.fromCharCode(65 + idx)}.
                                     </span>
-                                    <LaTeX>{option}</LaTeX>
+                                    <Markdown>{option}</Markdown>
                                   </div>
                                 ))}
                               </div>
@@ -634,7 +634,7 @@ export default function DocumentDetailPage() {
                                     <span className="text-muted-foreground">
                                       {idx + 1}.
                                     </span>
-                                    <LaTeX>{clause}</LaTeX>
+                                    <Markdown>{clause}</Markdown>
                                   </div>
                                 ))}
                               </div>

@@ -127,7 +127,7 @@ export async function getGeneratedExam(docId: string, genId: string) {
 export async function exportExam(
   docId: string,
   genId: string,
-  format: "latex" | "pdf"
+  format: "markdown" | "pdf" | "docx"
 ) {
   const user = auth.currentUser;
   if (!user) {
@@ -150,7 +150,7 @@ export async function exportExam(
     throw new Error("Failed to export exam");
   }
 
-  if (format === "pdf") {
+  if (format === "pdf" || format === "docx") {
     return response.blob();
   } else {
     return response.text();

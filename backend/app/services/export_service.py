@@ -7,93 +7,114 @@ from typing import Dict, List, Tuple
 logger = logging.getLogger(__name__)
 
 
-def build_latex_from_exam(exam: Dict) -> str:
-    preamble = r"""\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage[margin=2cm]{geometry}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{enumitem}
-\usepackage[utf8]{vietnam}
-\setlist[itemize]{leftmargin=*, itemindent=0pt, labelsep=0.5em}
-\setlist[enumerate]{leftmargin=*, itemindent=0pt, labelsep=0.5em}
-\begin{document}
-"""
-    postamble = "\n\\end{document}\n"
-
+def build_markdown_from_exam(exam: Dict) -> str:
     body: List[str] = []
-    body.append(f"\\section*{{{exam['metadata'].get('title', 'Exam')}}}")
+    answers: List[str] = []
+    body.append(f"# {exam['metadata'].get('title', 'Exam')}")
+
+    # pandoc settings
+    settings = [
+        "mainfont: 'Times New Roman'",
+    ]
 
     question_number = 1
-    for el in exam["elements"]:
-        if el.get("type") == "text":
+    for el in exam.get("elements", []):
+        t = el.get("type")
+        if t == "text":
             body.append(el.get("content", ""))
-        elif el.get("type") == "multiple_choice":
-            body.append(f"\\paragraph{{Câu {question_number}:}} {el['content']}")
+        elif t == "multiple_choice":
+            body.append(f"**Câu {question_number}:** {el['content']}")
             opts = el.get("data", {}).get("options", [])
-            body.append("\\begin{enumerate}[label=\\Alph*.]")
-            for o in opts:
-                body.append(f"  \\item {o}")
-            body.append("\\end{enumerate}")
-            if "answer" in el and el["answer"]:
+            for i, o in enumerate(opts):
+                body.append(f"{chr(65 + i)}. {o}")
+
+            # collect answer/explanation to append later
+            if el.get("answer"):
                 ans = el["answer"]
-                body.append(
-                    f"\\paragraph{{Đáp án:}} {chr(65 + ans.get('correct_option', 0))}"
+                ans_lines: List[str] = []
+                ans_lines.append(f"**Câu {question_number}:**")
+                ans_lines.append(
+                    f"**Đáp án:** {chr(65 + ans.get('correct_option', 0))}"
                 )
                 if ans.get("explanation"):
-                    body.append("\\paragraph{Lời giải:} " + ans["explanation"])
+                    ans_lines.append("**Lời giải:**")
+                    ans_lines.append(ans["explanation"])
 
                 if ans.get("error_analysis"):
-                    body.append("\\paragraph{Tại sao các đáp án khác sai:}")
-                    body.append("\\begin{itemize}")
+                    ans_lines.append("**Tại sao các đáp án khác sai:**")
                     correct_option = ans.get("correct_option", 0)
-                    for i, err in enumerate(ans["error_analysis"]):
-                        # Skip the correct option
+                    for i, err in enumerate(ans.get("error_analysis", [])):
                         if i != correct_option:
-                            option_letter = chr(65 + i)  # A, B, C, D
-                            body.append(f"\\item \\textbf{{{option_letter}.}} {err}")
-                    body.append("\\end{itemize}")
+                            option_letter = chr(65 + i)
+                            ans_lines.append(f"- **{option_letter}.** {err}")
+
+                answers.append("\n\n".join(ans_lines))
+
             question_number += 1
-        elif el.get("type") == "true_false":
-            body.append(f"\\paragraph{{Câu {question_number}:}} {el['content']}")
+        elif t == "true_false":
+            body.append(f"**Câu {question_number}:** {el['content']}")
             clauses = el.get("data", {}).get("clauses", [])
-            body.append("\\begin{enumerate}")
-            for c in clauses:
-                body.append(f"  \\item {c}")
-            body.append("\\end{enumerate}")
-            if "answer" in el and el["answer"]:
+            for i, c in enumerate(clauses, 1):
+                body.append(f"{i}. {c}")
+
+            if el.get("answer"):
                 ans = el["answer"]
+                ans_lines: List[str] = []
                 tf = ["Đúng" if b else "Sai" for b in ans.get("clause_correctness", [])]
-                body.append("\\textbf{Đáp án:} " + ", ".join(tf))
+                ans_lines.append(f"**Câu {question_number}:**")
+                ans_lines.append(f"**Đáp án:** " + ", ".join(tf))
                 if ans.get("general_explanation"):
-                    body.append("\\textbf{Lời giải:} " + ans["general_explanation"])
-                # Detailed explanations per clause
+                    ans_lines.append("**Lời giải:**")
+                    ans_lines.append(ans["general_explanation"])
+
                 if ans.get("explanations"):
-                    body.append("\\textbf{Giải thích chi tiết:}")
-                    body.append("\\begin{itemize}")
-                    for i, exp in enumerate(ans["explanations"]):
-                        body.append(f"\\item {clauses[i]}: {exp}")
-                    body.append("\\end{itemize}")
+                    ans_lines.append("**Giải thích chi tiết:**")
+                    for i, exp in enumerate(ans.get("explanations", [])):
+                        ans_lines.append(f"- **Mệnh đề {i+1}**")
+                        ans_lines.append(ans["explanations"][i])
+
+                answers.append("\n\n".join(ans_lines))
+
             question_number += 1
-        elif el.get("type") == "short_answer":
-            body.append(f"\\paragraph{{Câu {question_number}:}} {el['content']}")
-            if "answer" in el and el["answer"]:
+        elif t == "short_answer":
+            body.append(f"**Câu {question_number}:** {el['content']}")
+            if el.get("answer"):
                 ans = el["answer"]
-                body.append("\\textbf{Answer:} " + ans.get("answer_text", ""))
+                ans_lines: List[str] = []
+                ans_lines.append(f"**Câu {question_number}:**")
+                ans_lines.append(f"**Đáp án:** " + ans.get("answer_text", ""))
                 if ans.get("explanation"):
-                    body.append("\\textbf{Lời giải:} " + ans["explanation"])
+                    ans_lines.append("**Lời giải:**")
+                    ans_lines.append(ans["explanation"])
+                answers.append("\n\n".join(ans_lines))
+
             question_number += 1
+        else:
+            # unknown element types: include content if present
+            if el.get("content"):
+                body.append(el.get("content", ""))
 
-    return preamble + "\n\n".join(body) + postamble
+    # build postamble with all collected answers/explanations
+    if answers:
+        postamble_lines: List[str] = []
+        postamble_lines.append("# Đáp án và lời giải")
+        postamble_lines.extend(["", *answers])
+        postamble = "\n\n\n".join(postamble_lines)
+
+    # final assembly
+    markdown = "\n".join([f"---\n{line}\n---" for line in settings]) + "\n\n"
+    markdown = markdown + "\n\n\n".join(body)
+    if answers:
+        markdown += "\n\n" + "\\newpage" + "\n\n" + postamble
+    return markdown
 
 
-def compile_pdf(tex_path: str) -> str:
-    workdir = os.path.dirname(tex_path)
-    name = os.path.splitext(os.path.basename(tex_path))[0]
+def compile_pdf(md_path: str) -> str:
+    workdir = os.path.dirname(md_path)
+    name = os.path.splitext(os.path.basename(md_path))[0]
     try:
         subprocess.run(
-            ["pdflatex", "-interaction=nonstopmode", name + ".tex"],
+            ["pandoc", "-o", name + ".pdf", name + ".md", "--pdf-engine=xelatex"],
             cwd=workdir,
             check=True,
             capture_output=True,
@@ -101,8 +122,28 @@ def compile_pdf(tex_path: str) -> str:
         )
         return os.path.join(workdir, name + ".pdf")
     except FileNotFoundError:
-        logger.error("pdflatex not found. Please install TeX Live.")
+        logger.error("pandoc not found. Please install Pandoc.")
         raise
     except subprocess.CalledProcessError as e:
-        logger.error("pdflatex failed: %s", e.stderr)
+        logger.error("pandoc failed: %s", e.stderr)
+        raise
+
+
+def compile_docx(md_path: str) -> str:
+    workdir = os.path.dirname(md_path)
+    name = os.path.splitext(os.path.basename(md_path))[0]
+    try:
+        subprocess.run(
+            ["pandoc", "-o", name + ".docx", name + ".md"],
+            cwd=workdir,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return os.path.join(workdir, name + ".docx")
+    except FileNotFoundError:
+        logger.error("pandoc not found. Please install Pandoc.")
+        raise
+    except subprocess.CalledProcessError as e:
+        logger.error("pandoc failed: %s", e.stderr)
         raise

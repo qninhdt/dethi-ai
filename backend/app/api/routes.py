@@ -15,7 +15,11 @@ from app.schemas.document import (
     GenerateRequest,
     SelectQuestionsRequest,
 )
-from app.services.export_service import build_latex_from_exam, compile_pdf
+from app.services.export_service import (
+    build_markdown_from_exam,
+    compile_pdf,
+    compile_docx,
+)
 from app.services.firestore_service import (
     create_document,
     get_document,
@@ -124,7 +128,7 @@ def get_generated_exam(doc_id: str, gen_id: str, user=Depends(firebase_user)):
 
 @router.get("/{doc_id}/exams/{gen_id}/export")
 def export_exam(
-    doc_id: str, gen_id: str, format: str = "latex", user=Depends(firebase_user)
+    doc_id: str, gen_id: str, format: str = "markdown", user=Depends(firebase_user)
 ):
     doc = get_document(doc_id)
     if not doc:
@@ -132,19 +136,33 @@ def export_exam(
     if doc.get("created_by") != user["uid"]:
         raise HTTPException(403, "Forbidden")
     exam = list_generated_exam(doc_id, gen_id)
-    tex = build_latex_from_exam(exam)
-    if format == "latex":
-        return Response(content=tex, media_type="application/x-tex")
+    markdown = build_markdown_from_exam(exam)
+    if format == "markdown":
+        return Response(content=markdown, media_type="text/markdown")
     elif format == "pdf":
         with tempfile.TemporaryDirectory() as tmpdir:
-            tex_path = os.path.join(tmpdir, f"{gen_id}.tex")
-            with open(tex_path, "w", encoding="utf-8") as f:
-                f.write(tex)
-            pdf_path = compile_pdf(tex_path)
+            md_path = os.path.join(tmpdir, f"{gen_id}.md")
+            with open(md_path, "w", encoding="utf-8") as f:
+                f.write(markdown)
+            pdf_path = compile_pdf(md_path)
             with open(pdf_path, "rb") as f:
                 data = f.read()
             headers = {"Content-Disposition": f"attachment; filename={gen_id}.pdf"}
             return Response(content=data, media_type="application/pdf", headers=headers)
+    elif format == "docx":
+        with tempfile.TemporaryDirectory() as tmpdir:
+            md_path = os.path.join(tmpdir, f"{gen_id}.md")
+            with open(md_path, "w", encoding="utf-8") as f:
+                f.write(markdown)
+            docx_path = compile_docx(md_path)
+            with open(docx_path, "rb") as f:
+                data = f.read()
+            headers = {"Content-Disposition": f"attachment; filename={gen_id}.docx"}
+            return Response(
+                content=data,
+                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                headers=headers,
+            )
     else:
         raise HTTPException(400, "Unsupported format")
 

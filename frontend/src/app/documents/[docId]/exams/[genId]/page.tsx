@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { SignIn } from "@/components/sign-in";
 import { LoadingPage, Loading } from "@/components/loading";
-import { LaTeX } from "@/components/latex";
+import { Markdown } from "@/components/markdown";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -80,7 +80,9 @@ export default function GeneratedExamPage() {
   const [showAnswers, setShowAnswers] = useState(false);
   const [examLoading, setExamLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [exporting, setExporting] = useState<"latex" | "pdf" | null>(null);
+  const [exporting, setExporting] = useState<
+    "markdown" | "pdf" | "docx" | null
+  >(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -118,7 +120,7 @@ export default function GeneratedExamPage() {
     }
   };
 
-  const handleExport = async (format: "latex" | "pdf") => {
+  const handleExport = async (format: "markdown" | "pdf" | "docx") => {
     try {
       setExporting(format);
       const result = await exportExam(docId, genId, format);
@@ -134,14 +136,25 @@ export default function GeneratedExamPage() {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+      } else if (format === "docx") {
+        // Create download link for DOCX
+        const blob = result as Blob;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `exam-${genId}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
       } else {
-        // Create download link for LaTeX
+        // Create download link for Markdown
         const text = result as string;
         const blob = new Blob([text], { type: "text/plain" });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `exam-${genId}.tex`;
+        a.download = `exam-${genId}.md`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -302,7 +315,7 @@ export default function GeneratedExamPage() {
               <FileText className="h-6 w-6 text-primary mt-1" />
               <div>
                 <CardTitle className="text-xl">
-                  <LaTeX>{exam.metadata.title}</LaTeX>
+                  <Markdown>{exam.metadata.title}</Markdown>
                 </CardTitle>
                 <CardDescription className="mt-1">
                   Created{" "}
@@ -343,15 +356,15 @@ export default function GeneratedExamPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleExport("latex")}
-                    disabled={exporting === "latex"}
+                    onClick={() => handleExport("markdown")}
+                    disabled={exporting === "markdown"}
                   >
-                    {exporting === "latex" ? (
+                    {exporting === "markdown" ? (
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                       <Download className="mr-2 h-4 w-4" />
                     )}
-                    LaTeX
+                    Markdown
                   </Button>
                   <Button
                     size="sm"
@@ -364,6 +377,18 @@ export default function GeneratedExamPage() {
                       <Download className="mr-2 h-4 w-4" />
                     )}
                     PDF
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleExport("docx")}
+                    disabled={exporting === "docx"}
+                  >
+                    {exporting === "docx" ? (
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-4 w-4" />
+                    )}
+                    DOCX
                   </Button>
                 </>
               )}
@@ -441,7 +466,7 @@ export default function GeneratedExamPage() {
                   <div className="space-y-4">
                     {/* Question Content */}
                     <div>
-                      <LaTeX>{question.content}</LaTeX>
+                      <Markdown>{question.content}</Markdown>
                     </div>
 
                     {/* Question Options/Clauses */}
@@ -460,7 +485,7 @@ export default function GeneratedExamPage() {
                             <span className="text-muted-foreground font-medium">
                               {String.fromCharCode(65 + idx)}.
                             </span>
-                            <LaTeX>{option}</LaTeX>
+                            <Markdown>{option}</Markdown>
                             {showAnswers &&
                               question.answer?.selected_options === idx && (
                                 <CheckCircle className="h-4 w-4 text-green-600 ml-auto" />
@@ -486,7 +511,7 @@ export default function GeneratedExamPage() {
                             <span className="text-muted-foreground font-medium">
                               {idx + 1}.
                             </span>
-                            <LaTeX>{clause}</LaTeX>
+                            <Markdown>{clause}</Markdown>
                             {showAnswers && (
                               <Badge
                                 variant={
@@ -516,7 +541,7 @@ export default function GeneratedExamPage() {
                         {question.answer.answer_text && (
                           <div className="mb-3">
                             <p className="text-sm font-medium mb-1">Answer:</p>
-                            <LaTeX>{question.answer.answer_text}</LaTeX>
+                            <Markdown>{question.answer.answer_text}</Markdown>
                           </div>
                         )}
 
@@ -525,7 +550,7 @@ export default function GeneratedExamPage() {
                             <p className="text-sm font-medium mb-1">
                               Explanation:
                             </p>
-                            <LaTeX>{question.answer.explanation}</LaTeX>
+                            <Markdown>{question.answer.explanation}</Markdown>
                           </div>
                         )}
 
@@ -534,7 +559,9 @@ export default function GeneratedExamPage() {
                             <p className="text-sm font-medium mb-1">
                               General Explanation:
                             </p>
-                            <LaTeX>{question.answer.general_explanation}</LaTeX>
+                            <Markdown>
+                              {question.answer.general_explanation}
+                            </Markdown>
                           </div>
                         )}
 
@@ -549,7 +576,7 @@ export default function GeneratedExamPage() {
                                   <span className="font-medium">
                                     {idx + 1}.
                                   </span>{" "}
-                                  <LaTeX>{exp}</LaTeX>
+                                  <Markdown>{exp}</Markdown>
                                 </div>
                               ))}
                             </div>
@@ -578,7 +605,7 @@ export default function GeneratedExamPage() {
                                       <span className="font-medium">
                                         {String.fromCharCode(65 + idx)}.
                                       </span>{" "}
-                                      <LaTeX>{error}</LaTeX>
+                                      <Markdown>{error}</Markdown>
                                     </div>
                                   );
                                 }
@@ -652,8 +679,8 @@ export default function GeneratedExamPage() {
         <Alert className="mt-6">
           <CheckCircle className="h-4 w-4" />
           <AlertDescription>
-            Exam generation completed successfully! You can now export to LaTeX
-            or PDF format.
+            Exam generation completed successfully! You can now export to
+            Markdown or PDF format.
           </AlertDescription>
         </Alert>
       )}
