@@ -67,7 +67,7 @@ def extract_exam_from_latex(latex_pages: List[str]) -> Dict[str, Any]:
 
 
 def generate_mcq_from_example(example_json: Dict[str, Any]) -> Dict[str, Any]:
-    model = os.getenv("GEN_MODEL_NAME")
+    model = os.getenv("MCQ_GEN_MODEL_NAME")
     llm = _build_llm(model, temperature=0.5)
     parser = JsonOutputParser(pydantic_object=MultipleChoiceQuestionWithAnswer)
     prompt = PromptTemplate(
@@ -84,7 +84,7 @@ def generate_mcq_from_example(example_json: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def generate_true_false_from_example(example_json: Dict[str, Any]) -> Dict[str, Any]:
-    model = os.getenv("GEN_MODEL_NAME")
+    model = os.getenv("TFQ_GEN_MODEL_NAME")
     llm = _build_llm(model, temperature=0.5)
     parser = JsonOutputParser(pydantic_object=TrueFalseQuestionWithAnswer)
     prompt = PromptTemplate(
@@ -101,7 +101,7 @@ def generate_true_false_from_example(example_json: Dict[str, Any]) -> Dict[str, 
 
 
 def generate_short_answer_from_example(example_json: Dict[str, Any]) -> Dict[str, Any]:
-    model = os.getenv("GEN_MODEL_NAME")
+    model = os.getenv("SAQ_GEN_MODEL_NAME")
     llm = _build_llm(model, temperature=0.5)
     parser = JsonOutputParser(pydantic_object=ShortAnswerQuestionWithAnswer)
     prompt = PromptTemplate(

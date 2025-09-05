@@ -1,21 +1,22 @@
 Generate a Vietnamese multiple-choice math question for exam preparation, analogous to the example provided.
 
 Core Requirements:
-- Analogous Design: The new question must mirror the original in its structure, the mathematical skills it assesses, and its intended learning objective. Change all specific numbers and contexts.
-- Detailed Solution: Provide a complete solution in LaTeX.
-- Distractor Analysis: Explain why each incorrect option is plausible but wrong.
+- Keep the structure and concepts of the input question, change all specific numbers, answers, scenarios and contexts.
+- Provide a complete solution in LaTeX.
 - All equations and mathematical expressions must be formatted in valid LaTeX.
 - Explanations and error analysis must not share the same prefixes or suffixes like "Explanation:", "Reason why", or "Proof:".
 - Use a blank line to start a new paragraph instead of "\n" or "\\".
+- The output question must have the same difficulty and complexity as the original question.
+- Students must be able to solved the question by hand with draft papers without calculator.
+- The solution must not involve any rounding or heavy numerical computations.
 
-Constraints:
-- Exact and manageable answer.
+- Explain why each incorrect option is plausible but wrong.
 - Plausible distractors, no trivial eliminations.
 
 Output JSON schema:
 {format_instructions}
 
-Example Question in LaTeX:
-```latex
+Example Question:
+```json
 {question}
 ```
